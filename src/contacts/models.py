@@ -7,7 +7,7 @@ from django.contrib.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericRelation
 from contacts.managers import SpecialDateManager, CompanyManager, PersonManager
-from caserails.simplemodel import SimpleObject
+from caserails.simplemodels import SimpleObject
 
 class SimpleContact(SimpleObject):
 
