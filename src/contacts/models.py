@@ -86,10 +86,10 @@ class Contact(models.Model):
             result.middle_name = self.middle_name
             result.suffix = self.suffix
             result.title = self.title
-            #ignoring result.company
             if self.company:
-                    result.company = self.company.simplify()
-            result.user = self.user
+                result.company = self.company.simplify()
+            # No simplify() for user yet
+            # result.user = self.user.simplify()
             result.photo = self.photo
             result.nickname = self.nickname
             result.slug = self.slug
