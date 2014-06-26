@@ -7,25 +7,7 @@ from django.contrib.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericRelation
 from contacts.managers import SpecialDateManager, CompanyManager, PersonManager
-from caserails.simplemodels import SimpleObject
-
-class SimpleContact(SimpleObject):
-
-        def primary_street_address(self):
-                if len(self.street_address):
-                        return self.street_address[0]
-                else:
-                        return False
-        def primary_email_address(self):
-                if len(self.primary_email_address):
-                        return self.email_address[0]
-                return False
-        def primary_phone_number(self):
-                if len(self.primary_phone_number):
-                        return self.phone_number[0]
-                return False
-
-
+from caserails.simplemodels import SimpleObject, SimpleContact
 
 def get_primary_related_object(contact,related_object_name):
         """Determine and return the 'primary' related object."""
