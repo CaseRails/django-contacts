@@ -8,6 +8,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericRelation
 from contacts.managers import SpecialDateManager, CompanyManager, PersonManager
 from caserails.simplemodels import SimpleObject, SimpleContact
+from lxml import etree
+from io import StringIO
 
 def get_primary_related_object(contact,related_object_name):
         """Determine and return the 'primary' related object."""
@@ -117,19 +119,19 @@ class Contact(models.Model):
 
         def primary_email_address(self):
                 """Determine and return the 'primary' email address"""
-                return get_primary_related_object(self,"email_address")
+                return get_primary_related_object(self, "email_address")
 
         def primary_phone_number(self):
                 """Determine and return the 'primary' phone number"""
-                return get_primary_related_object(self,"phone_number")
+                return get_primary_related_object(self, "phone_number")
 
         def primary_street_address(self):
                 """Determine and return the 'primary' street address"""
-                return get_primary_related_object(self,"street_address")
+                return get_primary_related_object(self, "street_address")
 
         def primary_website(self):
                 """Determine and return the 'primary' website"""
-                return get_primary_related_object(self,"web_site")
+                return get_primary_related_object(self, "web_site")
 
 
 class Company(Contact):
@@ -313,7 +315,24 @@ class PhoneNumber(models.Model):
                 if 'content_object' in kwargs:
                         content_object_value = kwargs['content_object']
                         del kwargs['content_object']
-
+                elif 'xml' in kwargs:
+                        xml_phone_number_element = etree.fromstring(kwargs['xml'])
+                        # print xml_phone_number_element
+                        # magic happens and you have a variable
+                        phone_number_from_xml = xml_phone_number_element.find(".//phone_number").text
+                        date_added_from_xml = xml_phone_number_element.find(".//date_added").text
+                        print "assigning date_added_from_xml in constructor: %s" % (date_added_from_xml)
+                        date_modified_from_xml = xml_phone_number_element.find(".//date_modified").text
+                        location_from_xml = Location.objects.get(pk=2)
+                        if phone_number_from_xml is not None:
+                                kwargs['phone_number'] = phone_number_from_xml
+                        if location_from_xml is not None:
+                                kwargs['location'] = location_from_xml
+                        if date_added_from_xml is not None:
+                                kwargs['date_added'] = date_added_from_xml
+                        if date_modified_from_xml is not None:
+                                kwargs['date_modified'] = date_modified_from_xml
+                        del kwargs['xml']
                 # Then run the normal init
                 super(PhoneNumber,self).__init__(*args,**kwargs)
                 if 'content_object_value' in locals():
