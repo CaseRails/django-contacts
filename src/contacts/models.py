@@ -58,6 +58,33 @@ class Contact(models.Model):
                 verbose_name = _('contact')
                 verbose_name_plural = _('contacts')
 
+        def create_from_xml(self, xml_string):
+            contact_element = etree.XML(xml_string)
+            child_list = list(contact_element)
+            foreign_key_elements = {
+                    'PhoneNumber': PhoneNumber,
+                    'EmailAddress': EmailAddress,
+                    'StreetAddress': StreetAddress,
+                    'WebSite': WebSite }
+            wait_till_the_end = []
+
+            # parse all the elements except for
+            # foreign key objects
+            for child in child_list:
+                if child.tag in foreign_key_elements:
+                        wait_till_the_end.append((child, foreign_key_elements[child.tag]))
+                else:
+                    setattr(self, child.tag, child.text)
+            # save
+            self.save()
+            # parse the FK objects, and pass the constructors
+            # for them the contact we just saved.
+            for (element, ModelClass) in wait_till_the_end:
+                newInstance = ModelClass(xml=etree.tostring(element), contact=self)
+                newInstance.save()
+            self.save()
+            return self
+
         def __unicode__(self):
                 return self.fullname
 
@@ -269,6 +296,11 @@ class Location(models.Model):
 
         date_added = models.DateTimeField(_('date added'), auto_now_add=True)
         date_modified = models.DateTimeField(_('date modified'), auto_now=True)
+        def create_from_xml(self, xml_element):
+                child_list = list(xml_element)
+                for child in child_list:
+                        setattr(self, child.tag, child.text)
+                return self
 
         def __unicode__(self):
                 return u"%s" % (self.name)
@@ -317,24 +349,18 @@ class PhoneNumber(models.Model):
                         del kwargs['content_object']
                 elif 'xml' in kwargs:
                         xml_phone_number_element = etree.fromstring(kwargs['xml'])
-                        # print xml_phone_number_element
-                        # magic happens and you have a variable
-                        phone_number_from_xml = xml_phone_number_element.find(".//phone_number").text
-                        date_added_from_xml = xml_phone_number_element.find(".//date_added").text
-                        print "assigning date_added_from_xml in constructor: %s" % (date_added_from_xml)
-                        date_modified_from_xml = xml_phone_number_element.find(".//date_modified").text
-                        location_from_xml = Location.objects.get(pk=2)
-                        if phone_number_from_xml is not None:
-                                kwargs['phone_number'] = phone_number_from_xml
-                        if location_from_xml is not None:
-                                kwargs['location'] = location_from_xml
-                        if date_added_from_xml is not None:
-                                kwargs['date_added'] = date_added_from_xml
-                        if date_modified_from_xml is not None:
-                                kwargs['date_modified'] = date_modified_from_xml
+                        child_list = list(xml_phone_number_element)
+                        for child in child_list:
+                                if child.tag == "Location":
+                                        location_object = Location()
+                                        new_location = location_object.create_from_xml(child)
+                                        new_location.save()
+                                        kwargs['location'] = new_location
+                                else:
+                                        kwargs[child.tag] =  child.text
                         del kwargs['xml']
                 # Then run the normal init
-                super(PhoneNumber,self).__init__(*args,**kwargs)
+                super(PhoneNumber, self).__init__(*args,**kwargs)
                 if 'content_object_value' in locals():
                         self.contact = content_object_value
 
@@ -368,6 +394,18 @@ class EmailAddress(models.Model):
                 if 'content_object' in kwargs:
                         content_object_value = kwargs['content_object']
                         del kwargs['content_object']
+                elif 'xml' in kwargs:
+                        xml_email_address_element = etree.fromstring(kwargs['xml'])
+                        child_list = list(xml_email_address_element)
+                        for child in child_list:
+                                if child.tag == "Location":
+                                        location_object = Location()
+                                        new_location = location_object.create_from_xml(child)
+                                        new_location.save()
+                                        kwargs['location'] = new_location
+                                else:
+                                        kwargs[child.tag] =  child.text
+                        del kwargs['xml']
 
                 # Then run the normal init
                 super(EmailAddress,self).__init__(*args,**kwargs)
@@ -445,6 +483,16 @@ class WebSite(models.Model):
                 if 'content_object' in kwargs:
                         content_object_value = kwargs['content_object']
                         del kwargs['content_object']
+                elif 'xml' in kwargs:
+                        xml_website_element = etree.fromstring(kwargs['xml'])
+                        child_list = list(xml_website_element)
+                        for child in child_list:
+                                if child.tag == "Location":
+                                        location_object = Location()
+                                        kwargs['location'] = location_object.create_from_xml(child)
+                                else:
+                                        kwargs[child.tag] =  child.text
+                        del kwargs['xml']
 
                 # Then run the normal init
                 super(WebSite,self).__init__(*args,**kwargs)
@@ -491,6 +539,18 @@ class StreetAddress(models.Model):
                 if 'content_object' in kwargs:
                         content_object_value = kwargs['content_object']
                         del kwargs['content_object']
+                elif 'xml' in kwargs:
+                        xml_street_address_element = etree.fromstring(kwargs['xml'])
+                        child_list = list(xml_street_address_element)
+                        for child in child_list:
+                                if child.tag == "Location":
+                                        location_object = Location()
+                                        new_location = location_object.create_from_xml(child)
+                                        new_location.save()
+                                        kwargs['location'] = new_location
+                                else:
+                                        kwargs[child.tag] =  child.text
+                        del kwargs['xml']
 
                 # Then run the normal init
                 super(StreetAddress,self).__init__(*args,**kwargs)
