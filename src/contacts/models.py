@@ -9,6 +9,7 @@ from django.contrib.contenttypes.generic import GenericRelation
 from contacts.managers import SpecialDateManager, CompanyManager, PersonManager
 from caserails.simplemodels import SimpleObject, SimpleContact
 from lxml import etree
+import xml.etree.ElementTree as ET
 from io import StringIO
 
 def get_primary_related_object(contact,related_object_name):
@@ -301,6 +302,34 @@ class Location(models.Model):
                 for child in child_list:
                         setattr(self, child.tag, child.text)
                 return self
+
+        def create_xml_version(self):
+                #print "Hollo"
+                location = ET.Element("location")
+                #ET.dump(location)
+                elements_dict = {
+                        'name':'str',
+                        'slug':'str',
+                        'is_phone':'bool',
+                        'is_street_address':'bool',
+                        'date_added':'date',
+                        'date_modified':'date'}
+                for elementName,elementType in elements_dict.iteritems():
+                        newElement = ET.SubElement(location, elementName)
+                        if elementType == 'str':
+                                newElement.text = getattr(self, elementName)
+                        elif elementType == 'bool':
+                                # do something else
+                                pass
+                        elif elementType == 'date':
+                                # do something else
+                                pass
+                        else:
+                                print "Don't know what to do here."
+                                print "unknown element type."
+                                print 5/0
+                ET.dump(location)
+                # tree = ET.ElementTree("location")
 
         def __unicode__(self):
                 return u"%s" % (self.name)
