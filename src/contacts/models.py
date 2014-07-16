@@ -304,9 +304,7 @@ class Location(models.Model):
                 return self
 
         def create_xml_version(self):
-                #print "Hollo"
                 location = ET.Element("location")
-                #ET.dump(location)
                 elements_dict = {
                         'name':'str',
                         'slug':'str',
@@ -319,16 +317,19 @@ class Location(models.Model):
                         if elementType == 'str':
                                 newElement.text = getattr(self, elementName)
                         elif elementType == 'bool':
-                                # do something else
-                                pass
+                                bool_var = getattr(self, elementName)
+                                newElement.text = str(bool_var)
                         elif elementType == 'date':
                                 # do something else
-                                pass
+                                date = getattr(self, elementName)
+                                date_as_string = date.strftime('%Y-%m-%d')
+                                newElement.text = date_as_string
                         else:
                                 print "Don't know what to do here."
                                 print "unknown element type."
                                 print 5/0
                 ET.dump(location)
+                return(ET)
                 # tree = ET.ElementTree("location")
 
         def __unicode__(self):
