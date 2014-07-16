@@ -371,6 +371,37 @@ class PhoneNumber(models.Model):
                 result.date_modified = self.date_modified
                 return result
 
+        def create_xml_version(self):
+                PhoneNumber = ET.Element("PhoneNumber")
+                elements_dict = {
+                        'phone_number':'int',
+                        'location':'ref',
+                        'date_added':'date',
+                        'date_modified':'date'}
+                for elementName,elementType in elements_dict.iteritems():
+                        #if elementTpye == 'ref':
+                        #        nested_element_class = getattr(self, elementName)
+                        #        ref_class_as_xml = nested_element_class.create_xml_version()
+
+
+                        newElement = ET.SubElement(PhoneNumber, elementName)
+                        elif elementType == 'int':
+                                newElement.text = getattr(self, elementName)
+                        elif elementType == 'date':
+                                date = getattr(self, elementName)
+                                date_as_string = date.strftime('%Y-%m-%d')
+                                newElement.text = date_as_string
+                        elif elementType == 'ref':
+                                pass
+                                nested_element_class = getattr(self, elementName)
+                                ref_class_as_xml = nested_element_class.create_xml_version()
+                        else:
+                                print "Don't know what to do here."
+                                print "unknown element type."
+                                print 5/0
+                ET.dump(PhoneNumber)
+                return ET
+
         def __init__(self, *args, **kwargs):
                 # If there is a content_object in the kwarguments, peel it off into
                 # a variable named content_object_value
