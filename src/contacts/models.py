@@ -385,7 +385,7 @@ class PhoneNumber(models.Model):
 
 
                         newElement = ET.SubElement(PhoneNumber, elementName)
-                        elif elementType == 'int':
+                        if elementType == 'int':
                                 newElement.text = getattr(self, elementName)
                         elif elementType == 'date':
                                 date = getattr(self, elementName)
