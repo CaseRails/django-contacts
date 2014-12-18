@@ -3,7 +3,7 @@ from django.db.models import permalink
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext as _
-from django.contrib.comments.models import Comment
+# from django.contrib.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericRelation
 from contacts.managers import SpecialDateManager, CompanyManager, PersonManager
