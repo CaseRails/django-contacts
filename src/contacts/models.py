@@ -7,7 +7,6 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericRelation
 from contacts.managers import SpecialDateManager, CompanyManager, PersonManager
-from caserails.simplemodels import SimpleObject, SimpleContact
 from lxml import etree
 import xml.etree.ElementTree as ET
 from io import StringIO
@@ -90,7 +89,7 @@ class Contact(models.Model):
                 return self.fullname
 
         def simplify(self):
-            result = SimpleContact()
+            result = Object()
             result.name = self.name
             result.logo = self.logo
             result.first_name = self.first_name
