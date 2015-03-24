@@ -1,15 +1,11 @@
 from django.db import models
 from django.db.models import permalink
 from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
 from django.utils.translation import ugettext as _
 # from django.contrib.comments.models import Comment
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.generic import GenericRelation
 from contacts.managers import SpecialDateManager, CompanyManager, PersonManager
 from lxml import etree
 import xml.etree.ElementTree as ET
-from io import StringIO
 
 def get_primary_related_object(contact,related_object_name):
         """Determine and return the 'primary' related object."""
@@ -35,7 +31,11 @@ class Contact(models.Model):
         middle_name = models.CharField(_('middle name'), max_length=200, blank=True, null=True)
         suffix      = models.CharField(_('suffix'), max_length=50, blank=True, null=True)
         title       = models.CharField(_('title'), max_length=200, blank=True)
-        company     = models.ForeignKey('Contact', related_name='people', blank=True, null=True )
+        company     = models.ForeignKey('Contact',
+                                        related_name='people',
+                                        blank=True,
+                                        null=True,
+                                        on_delete=models.SET_NULL)
         user        = models.OneToOneField(User, blank=True, null=True,
                                            verbose_name=_('user'))
         photo = models.ImageField(_('photo'), upload_to='contacts/contacts/', blank=True, null=True)
